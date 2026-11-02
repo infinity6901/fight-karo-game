@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIGHT KARO - Sansad Showdown (Custom Fighter Edition)</title>
+  <link rel="stylesheet" href="/src/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Changa+One:ital@0;1&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Main 3D Game Canvas -->
+  <div id="game-container">
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Cinema Letterbox Bars -->
+    <div id="cinema">
+      <div class="cine-bar top"></div>
+      <div class="cine-bar bottom"></div>
+    </div>
+
+    <!-- Visual Effects Overlays -->
+    <div id="vignette" class="vignette-overlay"></div>
+    <div id="flash" class="flash-overlay"></div>
+    <div id="popups" class="popups-container"></div>
+
+    <!-- Cinematic Super Banner -->
+    <div id="super-banner" class="super-banner hidden"></div>
+
+    <!-- Overlay UI for In-Game Fight -->
+    <div id="fight-hud" class="hud-layer hidden">
+      <!-- Top Bars: Health, Timer, Rounds -->
+      <div class="hud-top">
+        <!-- Player 1 Bar -->
+        <div class="fighter-hud p1">
+          <div class="portrait-box">
+            <img id="p1-portrait" src="./textures/port_mitraman.jpg" alt="P1">
+          </div>
+          <div class="bar-details">
+            <div class="name-row">
+              <span id="p1-name" class="fighter-name">MITRAMAN</span>
+              <span id="p1-tag" class="fighter-tag">(YOU)</span>
+              <div class="round-indicators" id="p1-rounds">
+                <span class="pip"></span>
+                <span class="pip"></span>
+              </div>
+            </div>
+            <div class="health-meter-wrap">
+              <div class="health-ghost" id="p1-health-ghost"></div>
+              <div class="health-fill" id="p1-health-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center Match Timer -->
+        <div class="timer-box">
+          <div id="match-timer" class="timer-number">60</div>
+          <div id="match-round-text" class="round-subtext">ROUND 1</div>
+        </div>
+
+        <!-- Player 2 Bar -->
+        <div class="fighter-hud p2">
+          <div class="bar-details">
+            <div class="name-row">
+              <div class="round-indicators" id="p2-rounds">
+                <span class="pip"></span>
+                <span class="pip"></span>
+              </div>
+              <span id="p2-tag" class="fighter-tag">(CPU)</span>
+              <span id="p2-name" class="fighter-name">YATRA BOY</span>
+            </div>
+            <div class="health-meter-wrap">
+              <div class="health-ghost" id="p2-health-ghost"></div>
+              <div class="health-fill" id="p2-health-fill"></div>
+            </div>
+          </div>
+          <div class="portrait-box">
+            <img id="p2-portrait" src="./textures/port_yatraboy.jpg" alt="P2">
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Announcer Banner ("ROUND 1", "FIGHT!", "K.O.", "WINNER") -->
+      <div id="announcer-banner" class="announcer-banner hidden">
+        <h1 id="announcer-text">ROUND 1</h1>
+      </div>
+
+      <!-- Combo Counter Overlay -->
+      <div id="combo-display" class="combo-display hidden">
+        <div id="combo-count" class="combo-count">3</div>
+        <div class="combo-label">HITS!</div>
+      </div>
+
+      <!-- Bottom Meters: Shakti / Super Gauge -->
+      <div class="hud-bottom">
+        <div class="shakti-wrap p1">
+          <div class="shakti-label-row">
+            <span class="shakti-title">SHAKTI</span>
+            <span id="p1-super-ready" class="super-ready-pill hidden">SUPER READY! [SPACE / L]</span>
+          </div>
+          <div class="shakti-bar">
+            <div id="p1-shakti-fill" class="shakti-fill"></div>
+          </div>
+        </div>
+
+        <!-- Center Mini TV Debate Widget -->
+        <div id="tv-debate-box" class="tv-debate-box">
+          <div class="debate-live-pill"><span class="red-dot"></span> LIVE DEBATE</div>
+          <div class="debate-stage">
+            <div class="debater left">
+              <img id="debater-left-img" src="./textures/anchor_shor.png" class="debater-head" alt="Shor">
+              <div class="debater-meta">
+                <span class="debater-name">SHOR SHARMA</span>
+                <span class="debater-quote" id="debater-left-quote">DESH JAAN-NA CHAHTA HAI!</span>
+              </div>
+            </div>
+            <div class="debate-vs">VS</div>
+            <div class="debater right">
+              <div class="debater-meta">
+                <span class="debater-name">TWEETY TROLLWALA</span>
+                <span class="debater-quote" id="debater-right-quote">KHATRE MEIN WE LIVE!</span>
+              </div>
+              <img id="debater-right-img" src="./textures/anchor_tweety.png" class="debater-head" alt="Tweety">
+            </div>
+          </div>
+        </div>
+
+        <div class="shakti-wrap p2">
+          <div class="shakti-label-row">
+            <span id="p2-super-ready" class="super-ready-pill hidden">SUPER READY!</span>
+            <span class="shakti-title">SHAKTI</span>
+          </div>
+          <div class="shakti-bar">
+            <div id="p2-shakti-fill" class="shakti-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Satire Breaking News Ticker -->
+      <div class="breaking-news-ticker">
+        <div class="ticker-badge">BREAKING NEWS</div>
+        <div class="ticker-content">
+          <span id="ticker-text" class="ticker-marquee">
+            SATIRE LIVE: Sansad Showdown — The fight nobody demanded but everybody is watching! • Opposition stages walkout after LOW JAB • Experts declare MITRAMAN'S Uppercut a masterstroke • High-level probe demanded into ALOO-SE-SONA machine efficiency •
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Speech Bubbles Container (3D Screen-space projected) -->
+    <div id="speech-bubbles-container"></div>
+
+    <!-- Character Selection Screen ("SELECT YOUR NETA") -->
+    <div id="character-select-screen" class="menu-screen">
+      <div class="title-header">
+        <h1 class="main-title">SELECT YOUR NETA</h1>
+        <div class="controls-hint-bar">
+          <span><b>Move:</b> A/D or ←/→</span>
+          <span><b>Jump:</b> W or ↑</span>
+          <span><b>Crouch:</b> S or ↓</span>
+          <span><b>Punch:</b> J</span>
+          <span><b>Kick:</b> K</span>
+          <span><b>Sweep:</b> ↓ + K</span>
+          <span><b>Uppercut:</b> ↓→ + J</span>
+          <span><b>Super:</b> SPACE / L</span>
+        </div>
+      </div>
+
+      <!-- Center Versus Preview -->
+      <div class="select-preview-row">
+        <!-- P1 Selected Card Preview -->
+        <div class="preview-card p1-side">
+          <div class="player-tag p1">1P (YOU)</div>
+          <div class="fighter-portrait-large">
+            <img id="sel-p1-img" src="./textures/port_mitraman.jpg" alt="P1 Preview">
+          </div>
+          <h2 id="sel-p1-name" class="fighter-name">MITRAMAN</h2>
+          <div id="sel-p1-team" class="team-name">Team Vikas</div>
+          <div class="super-info">
+            <span class="super-title">SUPER MOVE:</span>
+            <span id="sel-p1-super" class="super-desc">MITRA CHAKRA — Rises into the sky with a spinning energy chakra!</span>
+          </div>
+        </div>
+
+        <div class="vs-emblem">VS</div>
+
+        <!-- P2 / CPU Selected Card Preview -->
+        <div class="preview-card p2-side">
+          <div class="player-tag p2" id="p2-mode-tag">CPU</div>
+          <div class="fighter-portrait-large">
+            <img id="sel-p2-img" src="./textures/port_yatraboy.jpg" alt="P2 Preview">
+          </div>
+          <h2 id="sel-p2-name" class="fighter-name">YATRA BOY</h2>
+          <div id="sel-p2-team" class="team-name">Team Yatra</div>
+          <div class="super-info">
+            <span class="super-title">SUPER MOVE:</span>
+            <span id="sel-p2-super" class="super-desc">ALOO SE SONA — Traps opponent into a potato-to-gold processing machine!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Character Roster Grid -->
+      <div class="roster-section">
+        <div class="roster-header">
+          <span>PICK YOUR FIGHTER</span>
+          <button id="btn-create-character" class="btn-create-char">✨ CREATE OWN FIGHTER</button>
+        </div>
+        <div class="roster-grid" id="roster-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Game Options Bar -->
+      <div class="options-bar">
+        <!-- Game Mode Selection -->
+        <div class="option-group">
+          <span class="opt-label">MODE:</span>
+          <div class="toggle-group" id="mode-selector">
+            <button class="opt-btn active" data-mode="cpu">1P VS CPU</button>
+            <button class="opt-btn" data-mode="local2p">2P LOCAL</button>
+          </div>
+        </div>
+
+        <!-- CPU Difficulty -->
+        <div class="option-group" id="cpu-diff-group">
+          <span class="opt-label">CPU:</span>
+          <div class="toggle-group" id="diff-selector">
+            <button class="opt-btn" data-diff="easy">EASY</button>
+            <button class="opt-btn active" data-diff="normal">NORMAL</button>
+            <button class="opt-btn" data-diff="hard">HARD</button>
+          </div>
+        </div>
+
+        <!-- Stage Selection -->
+        <div class="option-group">
+          <span class="opt-label">STAGE:</span>
+          <div class="toggle-group" id="stage-selector">
+            <button class="opt-btn active" data-stage="sansad">SANSAD</button>
+            <button class="opt-btn" data-stage="jantar">JANTAR MANTAR</button>
+            <button class="opt-btn" data-stage="sadak">DESI SADAK</button>
+          </div>
+        </div>
+
+        <!-- Fight Button -->
+        <button id="btn-fight" class="btn-fight-main">FIGHT!</button>
+      </div>
+    </div>
+
+    <!-- Match Over / Victory Overlay (The Daily Jumla Newspaper) -->
+    <div id="victory-modal" class="modal-screen hidden">
+      <div class="paper-victory-card">
+        <div class="paper-header">
+          <div id="paper-masthead" class="paper-masthead">THE DAILY JUMLA</div>
+          <div id="paper-date" class="paper-dateline">SPECIAL SANSAD SHOWDOWN EDITION • PRICE: ₹10 (CHAI INCLUDED)</div>
+        </div>
+        <div class="paper-content">
+          <h1 id="victory-winner-text" class="paper-headline">MITRAMAN WINS!</h1>
+          <div class="paper-body">
+            <div class="paper-col left">
+              <p id="victory-quote" class="paper-quote">"Mitron! Swagat nahi karoge hamara?"</p>
+              <p class="paper-editorial">"Opposition stages walkout, demanding immediate high-level Supreme Court monitored JPC probe into rival's fight mechanics."</p>
+            </div>
+            <div class="paper-col right">
+              <div class="paper-stats">
+                <div class="stat-item">
+                  <span class="stat-num" id="stat-max-combo">4</span>
+                  <span class="stat-name">MAX COMBO</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-num" id="stat-supers-used">1</span>
+                  <span class="stat-name">SUPERS USED</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-num" id="stat-match-time">28s</span>
+                  <span class="stat-name">MATCH TIME</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="result-stamp" class="result-stamp">YOU WIN!</div>
+        <div class="victory-actions">
+          <button id="btn-rematch" class="action-btn primary">REMATCH</button>
+          <button id="btn-char-select" class="action-btn secondary">CHANGE NETA</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Character Creator Modal -->
+    <div id="custom-char-modal" class="modal-screen hidden">
+      <div class="custom-builder-card">
+        <div class="builder-header">
+          <h2>🎨 CREATE YOUR OWN FIGHTER</h2>
+          <button id="btn-close-builder" class="btn-close">&times;</button>
+        </div>
+
+        <div class="builder-body">
+          <!-- Left: 3D Live Character Preview -->
+          <div class="builder-preview-col">
+            <div id="custom-3d-preview" class="preview-3d-canvas-wrap">
+              <!-- Rendered via mini preview -->
+              <canvas id="custom-preview-canvas"></canvas>
+            </div>
+            <div class="preview-caption">LIVE 3D FIGHTER PREVIEW</div>
+          </div>
+
+          <!-- Right: Customization Controls -->
+          <div class="builder-controls-col">
+            <div class="form-group">
+              <label for="custom-name-input">Fighter Name:</label>
+              <input type="text" id="custom-name-input" maxlength="16" value="SARVESH WARRIOR" placeholder="e.g. SARVESH WARRIOR">
+            </div>
+
+            <div class="form-group">
+              <label for="custom-team-input">Faction / Title:</label>
+              <input type="text" id="custom-team-input" maxlength="24" value="Team Agility" placeholder="e.g. Team Champion">
+            </div>
+
+            <!-- Face Avatar: Preset or Upload -->
+            <div class="form-group">
+              <label>Face / Avatar Photo:</label>
+              <div class="face-selection-row">
+                <label class="btn-upload-face">
+                  📁 Upload Photo
+                  <input type="file" id="custom-face-upload" accept="image/*">
+                </label>
+                <div class="preset-faces" id="preset-faces-container">
+                  <div class="preset-chip active" data-face="warrior">🥊 Warrior</div>
+                  <div class="preset-chip" data-face="techie">💻 Techie</div>
+                  <div class="preset-chip" data-face="neta">👔 Leader</div>
+                  <div class="preset-chip" data-face="karateka">🥋 Karateka</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3D Base Model Selection -->
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="custom-base-model">3D Base Fighter Model:</label>
+                <select id="custom-base-model">
+                  <option value="modi">Mitraman (Modi 3D)</option>
+                  <option value="rahul">Yatra Boy (Rahul 3D)</option>
+                  <option value="didi">Deedee (Mamata 3D)</option>
+                  <option value="trump">Tariff Taau (Trump 3D)</option>
+                  <option value="yogi">Dozer Dada (Yogi 3D)</option>
+                  <option value="nitin">Toll Man (Gadkari 3D)</option>
+                  <option value="mbapu">Mbapu (Mahatma 3D)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="custom-outfit-select">Outfit Style:</label>
+                <select id="custom-outfit-select">
+                  <option value="kurta">Traditional Kurta</option>
+                  <option value="suit">Power Suit</option>
+                  <option value="tracksuit">Street Tracksuit</option>
+                  <option value="gi">Martial Arts Gi</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Outfit & Colors -->
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="custom-primary-color">Kurta / Suit Color:</label>
+                <input type="color" id="custom-primary-color" value="#ff6600">
+              </div>
+              <div class="form-group">
+                <label for="custom-pants-color">Pants / Pyjama Color:</label>
+                <input type="color" id="custom-pants-color" value="#ffffff">
+              </div>
+            </div>
+
+            <!-- Signature Super Move -->
+            <div class="form-group">
+              <label for="custom-super-select">Signature Super Move:</label>
+              <select id="custom-super-select">
+                <option value="chakra">Mitra Chakra (Energy Blast)</option>
+                <option value="gold_machine">Aloo Se Sona (Mystery Machine)</option>
+                <option value="thunder">Desi Thunder Storm</option>
+                <option value="mega_slam">Mega Dropkick Slam</option>
+              </select>
+            </div>
+
+            <!-- Voice Lines / Quotes -->
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="custom-quote-start">Battle Cry:</label>
+                <input type="text" id="custom-quote-start" value="Ready to conquer!" maxlength="35">
+              </div>
+              <div class="form-group">
+                <label for="custom-quote-super">Super Shout:</label>
+                <input type="text" id="custom-quote-super" value="Feel the unlimited power!" maxlength="35">
+              </div>
+            </div>
+
+            <button id="btn-save-custom-char" class="btn-save-character">💾 SAVE & SELECT FIGHTER</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause / Controls Helper Modal -->
+    <div id="pause-modal" class="modal-screen hidden">
+      <div class="pause-card">
+        <h2>PAUSED</h2>
+        <div class="pause-controls-guide">
+          <h3>PLAYER 1 CONTROLS:</h3>
+          <p><b>Movement:</b> A / D (Walk), W (Jump), S (Crouch)</p>
+          <p><b>Block:</b> Hold Back (away from enemy)</p>
+          <p><b>Attacks:</b> J (Punch), K (Kick), ↓ + K (Sweep), ↓→ + J (Uppercut)</p>
+          <p><b>Super Move:</b> SPACE / L (When Shakti meter is 100%)</p>
+
+          <h3>PLAYER 2 CONTROLS (Local Mode):</h3>
+          <p><b>Movement:</b> ← / → (Walk), ↑ (Jump), ↓ (Crouch)</p>
+          <p><b>Attacks:</b> 1 / U (Punch), 2 / I (Kick), ↓ + 2 (Sweep)</p>
+          <p><b>Super Move:</b> Enter / O (When Shakti is full)</p>
+        </div>
+        <div class="pause-actions">
+          <button id="btn-resume" class="action-btn primary">RESUME</button>
+          <button id="btn-quit-to-menu" class="action-btn secondary">QUIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Audio Control Toggle -->
+    <div class="audio-control-pill" id="audio-toggle-btn" title="Toggle Music & Sound">
+      <span id="audio-icon">🔊</span>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
