@@ -1,3 +1,5 @@
+import { App as CapApp } from '@capacitor/app';
+
 // On-screen touch controls. They dispatch synthetic keyboard events so the
 // existing keyboard handling in main.js works unchanged.
 // Only shown on touch-first devices (phones/tablets).
@@ -25,6 +27,35 @@ function makeButton(name, label, cls) {
   b.textContent = label;
   b.setAttribute('aria-label', name);
   return b;
+}
+
+// Shrink the HUD / menus on short screens (phones in landscape) so the layout,
+// designed for a desktop window, fits. Never scales above 1 (desktop unchanged).
+export function initUiScale() {
+  const apply = () => {
+    const h = window.innerHeight;
+    const hud = Math.min(1, Math.max(0.5, h / 560));
+    const menu = Math.min(1, Math.max(0.45, h / 680));
+    const root = document.documentElement.style;
+    root.setProperty('--hud-scale', hud.toFixed(3));
+    root.setProperty('--menu-scale', menu.toFixed(3));
+  };
+  apply();
+  window.addEventListener('resize', apply);
+  window.addEventListener('orientationchange', apply);
+}
+
+// Stop all sound while the app is in the background.
+export function initLifecycle(sound) {
+  const onHidden = () => sound.suspend();
+  const onShown = () => sound.resume();
+  document.addEventListener('visibilitychange', () => (document.hidden ? onHidden() : onShown()));
+  window.addEventListener('pagehide', onHidden);
+  window.addEventListener('pageshow', onShown);
+  // Native app state (Android): visibilitychange is not always fired by WebView.
+  CapApp.addListener('appStateChange', ({ isActive }) => (isActive ? onShown() : onHidden())).catch(() => {});
+  CapApp.addListener('pause', onHidden).catch(() => {});
+  CapApp.addListener('resume', onShown).catch(() => {});
 }
 
 export function initTouchControls() {
@@ -102,6 +133,8 @@ export function initTouchControls() {
     const app = window.app;
     const fighting = app && (app.gameState === 'FIGHTING' || app.gameState === 'PAUSED');
     root.classList.toggle('active', !!fighting);
+    const sup = root.querySelector('.tc-super');
+    if (sup) sup.classList.toggle('ready', !!(app && app.p1Fighter && app.p1Fighter.shakti >= 100));
   };
   setInterval(update, 250);
   update();

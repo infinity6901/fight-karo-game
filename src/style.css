@@ -1524,7 +1524,44 @@ body.touch-device { -webkit-user-select: none; user-select: none; touch-action: 
   top: 10px;
   width: 44px; height: 44px; font-size: 14px; border-radius: 10px;
 }
-@media (max-height: 420px) {
-  .tc-dpad { width: 160px; height: 160px; }
-  .tc-actions { transform: scale(0.85); transform-origin: right bottom; }
+/* Super button glows when the super is ready */
+.tc-actions .tc-super.ready { background: rgba(245, 158, 11, 0.8); color: #fff; animation: glow-pulse 0.6s infinite alternate; }
+
+/* ===== Scale the desktop-sized UI down on short screens ===== */
+.hud-layer, .menu-screen, .modal-screen {
+  transform: scale(var(--hud-scale, 1));
+  transform-origin: 0 0;
+  width: calc(100% / var(--hud-scale, 1));
+  height: calc(100% / var(--hud-scale, 1));
 }
+.menu-screen, .modal-screen {
+  transform: scale(var(--menu-scale, 1));
+  width: calc(100% / var(--menu-scale, 1));
+  height: calc(100% / var(--menu-scale, 1));
+}
+
+@media (max-height: 560px) {
+  /* HUD: keep clear of the pause / sound buttons on the right */
+  .hud-top { padding-right: 200px; }
+  .audio-control-pill { top: 8px; right: 62px; width: 40px; height: 40px; font-size: 18px; }
+  .announcer-banner h1 { font-size: 56px; }
+  .popup { font-size: 28px; }
+  .super-banner { height: 84px; }
+  .super-banner img { width: 76px; height: 76px; }
+  .super-banner span { font-size: clamp(28px, 5vw, 52px); }
+
+  /* Touch controls: smaller, tucked above the news ticker */
+  .tc-dpad { width: 140px; height: 140px; bottom: 58px; }
+  .tc-dpad .tc-btn { font-size: 18px; }
+  .tc-actions { width: 190px; height: 160px; bottom: 58px; }
+  .tc-actions .tc-btn { font-size: 12px; }
+  .tc-actions .tc-punch { right: 0; bottom: 50px; width: 76px; height: 76px; }
+  .tc-actions .tc-kick  { right: 86px; bottom: 6px; width: 72px; height: 72px; }
+  .tc-actions .tc-super { right: 86px; bottom: 86px; width: 64px; height: 64px; font-size: 11px; }
+  #touch-controls .tc-pause { top: 8px; right: max(env(safe-area-inset-right), 10px); width: 40px; height: 40px; }
+  /* The TV debate box is decoration; keep it small so it never sits under the buttons */
+  .tv-debate-box { width: 260px; }
+}
+
+/* Keyboard hints are meaningless on a touch device */
+body.touch-device .controls-hint-bar { display: none; }

@@ -106,7 +106,8 @@ export class UIManager {
 
     if (p1.shakti >= 100) {
       this.p1ShaktiFill.classList.add('full');
-      this.p1SuperReady.textContent = `${p1.charData.superMove?.name || 'SUPER'} READY! [SPACE / L]`;
+      const keyHint = document.body.classList.contains('touch-device') ? '' : ' [SPACE / L]';
+      this.p1SuperReady.textContent = `${p1.charData.superMove?.name || 'SUPER'} READY!${keyHint}`;
       this.p1SuperReady.classList.remove('hidden');
     } else {
       this.p1ShaktiFill.classList.remove('full');

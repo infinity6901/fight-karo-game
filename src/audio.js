@@ -21,6 +21,15 @@ class SoundEngine {
     }
   }
 
+  // Pause/resume everything when the app goes to the background.
+  suspend() {
+    if (this.ctx && this.ctx.state === 'running') this.ctx.suspend().catch(() => {});
+  }
+
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended' && !this.isMuted) this.ctx.resume().catch(() => {});
+  }
+
   toggleMute() {
     this.isMuted = !this.isMuted;
     if (this.isMuted) {

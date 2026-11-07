@@ -16,6 +16,23 @@ public class MainActivity extends BridgeActivity {
         hideSystemBars();
     }
 
+    // Make sure the WebView (and its audio) stops when the app is backgrounded.
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (getBridge() != null && getBridge().getWebView() != null) {
+            getBridge().getWebView().onPause();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getBridge() != null && getBridge().getWebView() != null) {
+            getBridge().getWebView().onResume();
+        }
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);

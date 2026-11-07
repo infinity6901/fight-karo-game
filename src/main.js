@@ -13,7 +13,7 @@ import { CombatEngine } from './combat.js';
 import { CPUController } from './ai.js';
 import { UIManager } from './ui.js';
 import { CustomCharacterModal } from './customCharacterModal.js';
-import { initTouchControls } from './touchControls.js';
+import { initTouchControls, initUiScale, initLifecycle } from './touchControls.js';
 
 class GameApp {
   constructor() {
@@ -654,5 +654,7 @@ class GameApp {
 // Boot application
 window.addEventListener('DOMContentLoaded', () => {
   window.app = new GameApp();
+  initUiScale();
+  initLifecycle(sound);
   initTouchControls();
 });
