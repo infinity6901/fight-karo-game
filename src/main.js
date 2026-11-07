@@ -1,5 +1,9 @@
 // Main Game Controller for Sansad Showdown (FIGHT KARO)
 
+import '@fontsource/bungee/400.css';
+import '@fontsource/changa-one/400.css';
+import '@fontsource/teko/600.css';
+import '@fontsource/teko/700.css';
 import * as THREE from 'three';
 import { sound } from './audio.js';
 import { getAllCharacters, getCharacterById, loadSavedCustomFighter } from './characters.js';
@@ -9,6 +13,7 @@ import { CombatEngine } from './combat.js';
 import { CPUController } from './ai.js';
 import { UIManager } from './ui.js';
 import { CustomCharacterModal } from './customCharacterModal.js';
+import { initTouchControls } from './touchControls.js';
 
 class GameApp {
   constructor() {
@@ -649,4 +654,5 @@ class GameApp {
 // Boot application
 window.addEventListener('DOMContentLoaded', () => {
   window.app = new GameApp();
+  initTouchControls();
 });

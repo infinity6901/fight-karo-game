@@ -1,0 +1,8 @@
+{
+  "appId": "com.infinity6901.fightkaro",
+  "appName": "Fight Karo",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  }
+}

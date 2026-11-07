@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Fight Karo</string>
+    <string name="title_activity_main">Fight Karo</string>
+    <string name="package_name">com.infinity6901.fightkaro</string>
+    <string name="custom_url_scheme">com.infinity6901.fightkaro</string>
+</resources>
